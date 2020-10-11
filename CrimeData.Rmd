@@ -1,0 +1,44 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+install.packages("tidyverse")
+install.packages("reticulate")
+```
+
+```{r eval=TRUE}
+library(tabulizer)
+library(tidyverse)
+location <- "https://police.vt.edu/content/dam/police_vt_edu/crime-logs/2020/file_202003.pdf"
+```
+
+
+
+```{r}
+extract.crime.data <- function(path) {
+  lst <-extract_tables(path, method="stream", pages = 1)
+  test <- c()
+  for (i in 1:length(lst)) {
+    table <-lst[[i]]
+    hght <- dim(table)[1]
+    lght <- dim(table)[2]
+    for (j in 1:hght) {
+      if (substr(table[j, 1], 1, 2) == '20') {
+        for (k in 1:lght) {
+          if (j + 1 <= hght) {
+            test<-c(test, paste(table[j, k], table[j + 1, k], sep=""))
+          }
+        }
+      }
+    }
+  }
+  return(test)
+}
+data <- c()
+for (i in 1:9) {
+  data <- c(data, extract.crime.data(paste(paste("https://police.vt.edu/content/dam/police_vt_edu/crime-logs/2020/file_20200", i, sep=""), ".pdf", sep="")))
+}
+view(data)
+```
+
